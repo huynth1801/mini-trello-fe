@@ -1,5 +1,3 @@
-"use client";
-
 import Paper from "@mui/material/Paper";
 import { useState, useTransition } from "react";
 import Typography from "@mui/material/Typography";
@@ -7,33 +5,48 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import axiosClient from "@/lib/axios";
 import ResourceURL from "@/constants/ResourceURL";
-import { ISendCodeResponse, ISignInResponse } from "@/types/ClientUI";
-import { useRouter, useSearchParams } from "next/navigation";
+import { ISendCodeResponse } from "@/types/ClientUI";
+import { useRouter } from "next/navigation";
 import { CircularProgress } from "@mui/material";
+import { AxiosResponse } from "axios";
 import AppConstants from "@/constants/AppConstants";
 
-export default function VerifyTokenPage() {
-  const [verificationCode, setVerificationCode] = useState<string>("");
+interface AuthEmailFormProps {
+  apiUrl: string;
+  title: string;
+  buttonText: string;
+  redirectUrl: string;
+  bottomText: React.ReactNode;
+}
+
+export default function AuthEmailForm({
+  apiUrl,
+  title,
+  buttonText,
+  redirectUrl,
+  bottomText,
+}: AuthEmailFormProps) {
+  const [email, setEmail] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const email = searchParams.get("email");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
       try {
-        const response = await axiosClient.post<ISignInResponse>(
-          ResourceURL.VERIFY_TOKEN_SIGN_IN,
-          { email, verificationCode }
-        );
-        if (response.status === 200) {
-          localStorage.setItem(
-            AppConstants.ACCESS_TOKEN,
-            response.data.accessToken
+        const response = await axiosClient.post<ISendCodeResponse>(apiUrl, {
+          email,
+        });
+        const res = response.data;
+        if (res.success) {
+          router.push(
+            `${
+              AppConstants.HOME_PATH
+            }/${redirectUrl}?email=${encodeURIComponent(email)}`
           );
-          router.push("/dashboard");
+        } else {
+          setError(res.message || "Invalid email");
         }
       } catch (error) {
         console.error("Error when sending email", error);
@@ -44,17 +57,17 @@ export default function VerifyTokenPage() {
   return (
     <Paper elevation={3} sx={{ padding: 4, minWidth: 320 }}>
       <Typography variant="h5" mb={2} align="center">
-        Verify your token
+        {title}
       </Typography>
       <form onSubmit={handleSubmit}>
         <TextField
-          label="Token"
-          type="string"
+          label="Email"
+          type="email"
           fullWidth
           required
           margin="normal"
-          value={verificationCode}
-          onChange={(e) => setVerificationCode(e.target.value)}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <Button
           type="submit"
@@ -67,14 +80,21 @@ export default function VerifyTokenPage() {
           {isPending ? (
             <div className="flex items-center space-x-2">
               <CircularProgress size={"20px"} />
-              <span>Signing in ...</span>
+              <span>Sending code ...</span>
             </div>
           ) : (
-            "Sign in"
+            buttonText
           )}
         </Button>
-        {error && <div style={{ color: "red" }}>{error}</div>}
       </form>
+      {error && (
+        <Typography color="error" align="center" mt={2}>
+          {error}
+        </Typography>
+      )}
+      <Typography variant="body2" align="center" mt={2}>
+        {bottomText}
+      </Typography>
     </Paper>
   );
 }

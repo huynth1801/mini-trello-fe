@@ -12,7 +12,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { CircularProgress } from "@mui/material";
 import AppConstants from "@/constants/AppConstants";
 
-export default function VerifyTokenPage() {
+export default function VerifySignUpTokenPage() {
   const [verificationCode, setVerificationCode] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -24,16 +24,12 @@ export default function VerifyTokenPage() {
     e.preventDefault();
     startTransition(async () => {
       try {
-        const response = await axiosClient.post<ISignInResponse>(
-          ResourceURL.VERIFY_TOKEN_SIGN_IN,
+        const response = await axiosClient.post<void>(
+          ResourceURL.VERIFY_TOKEN_SIGN_UP,
           { email, verificationCode }
         );
-        if (response.status === 200) {
-          localStorage.setItem(
-            AppConstants.ACCESS_TOKEN,
-            response.data.accessToken
-          );
-          router.push("/dashboard");
+        if (response.status === 201) {
+          router.push("/sign-in");
         }
       } catch (error) {
         console.error("Error when sending email", error);
