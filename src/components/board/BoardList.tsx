@@ -1,7 +1,17 @@
-import React from "react";
-import { Paper, Typography, Box, Button, IconButton } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Paper,
+  Typography,
+  Box,
+  Button,
+  IconButton,
+  Popover,
+  MenuItem,
+  ListItemText,
+  ListItemIcon,
+} from "@mui/material";
 import { ICard } from "@/types/ClientUI";
-import { CirclePlus, MoreHorizontal } from "lucide-react";
+import { CirclePlus, MoreHorizontal, Plus, Trash2 } from "lucide-react";
 
 interface BoardListProps {
   list: ICard;
@@ -16,11 +26,23 @@ const BoardList: React.FC<BoardListProps> = ({
   onUpdateCard,
   onDeleteCard,
 }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Paper
       elevation={1}
       sx={{
-        width: 272,
+        width: { xs: "90vw", sm: 272 },
+        minWidth: { xs: "80vw", sm: 240 },
+        maxWidth: 400,
         minHeight: "fit-content",
         bgcolor: "#f1f2f4",
         borderRadius: 2,
@@ -29,7 +51,6 @@ const BoardList: React.FC<BoardListProps> = ({
         flexDirection: "column",
       }}
     >
-      {/* List Header */}
       <Box
         display="flex"
         alignItems="center"
@@ -46,21 +67,50 @@ const BoardList: React.FC<BoardListProps> = ({
         >
           {list.name}
         </Typography>
-        <IconButton size="small" sx={{ color: "#6b778c" }}>
+        <IconButton
+          size="small"
+          sx={{ color: "#6b778c" }}
+          onClick={handleMenuOpen}
+        >
           <MoreHorizontal fontSize="small" />
         </IconButton>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              onAddCard(list.id);
+              handleMenuClose();
+            }}
+          >
+            <ListItemIcon>
+              <Plus size={18} />
+            </ListItemIcon>
+            <ListItemText>Add card</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              onDeleteCard?.(list.id);
+              handleMenuClose();
+            }}
+          >
+            <ListItemIcon>
+              <Trash2 size={18} color="red" />
+            </ListItemIcon>
+            <ListItemText sx={{ color: "red" }}>Delete card</ListItemText>
+          </MenuItem>
+        </Popover>
       </Box>
-
-      {/* <Box sx={{ mb: 1 }}>
-        {list.cards.map((card) => (
-          <TaskCard
-            key={card.id}
-            card={card}
-            onUpdate={onUpdateCard}
-            onDelete={onDeleteCard}
-          />
-        ))}
-      </Box> */}
 
       <Button
         startIcon={<CirclePlus />}

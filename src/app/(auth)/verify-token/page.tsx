@@ -35,6 +35,7 @@ export default function VerifyTokenPage() {
             AppConstants.ACCESS_TOKEN,
             response.data.accessToken
           );
+          localStorage.setItem("currentUserEmail", email ?? "");
           router.push("/dashboard");
         }
       } catch (error) {

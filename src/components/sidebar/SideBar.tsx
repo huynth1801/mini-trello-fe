@@ -33,6 +33,7 @@ const SideBar: React.FC<SideBarProps> = ({
   onSelectBoard,
 }) => {
   const [isActive, setIsActive] = useState<boolean>(false);
+  const currentUserEmail = localStorage.getItem("currentUserEmail");
   return (
     <Drawer
       anchor="left"
@@ -59,7 +60,7 @@ const SideBar: React.FC<SideBarProps> = ({
               <Typography variant="body2" sx={{ fontWeight: 500 }}>
                 Workspace of
               </Typography>
-              <Typography variant="body2">Huu Huy</Typography>
+              <Typography variant="body2">{currentUserEmail}</Typography>
             </Box>
           </Box>
           <IconButton

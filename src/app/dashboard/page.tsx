@@ -1,8 +1,8 @@
 "use client";
 
-import BoardColumn from "@/components/board/BoardColumn";
 import BoardView from "@/components/board/BoardView";
 import Header from "@/components/headers/Header";
+import AppConstants from "@/constants/AppConstants";
 import { useBoards } from "@/hooks/useBoard";
 import { IBoard } from "@/types/ClientUI";
 import {
@@ -15,7 +15,7 @@ import {
   Typography,
 } from "@mui/material";
 import { CirclePlus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function DashboardPage() {
   const { data: boards = [], isLoading } = useBoards();
@@ -28,14 +28,24 @@ export default function DashboardPage() {
 
   const handleSelectBoard = (board: IBoard): void => {
     setSelectedBoard(board);
+    localStorage.setItem(AppConstants.SELECTED_BOARD_ID, board.id);
   };
 
   const handleBackToBoards = (): void => {
     setSelectedBoard(null);
+    localStorage.removeItem(AppConstants.SELECTED_BOARD_ID);
   };
 
+  useEffect(() => {
+    const savedId = localStorage.getItem("selectedBoardId");
+    if (savedId && boards.length > 0) {
+      const found = boards.find((b) => b.id === savedId);
+      if (found) setSelectedBoard(found);
+    }
+  }, [boards]);
+
   if (selectedBoard) {
-    return <BoardView board={selectedBoard} />;
+    return <BoardView board={selectedBoard} onBack={handleBackToBoards} />;
   }
 
   return (
@@ -147,14 +157,14 @@ export default function DashboardPage() {
                         {board.description}
                       </Typography>
                     )}
-                    <Typography
+                    {/* <Typography
                       variant="caption"
                       sx={{
                         opacity: 0.7,
                       }}
                     >
                       Created {new Date(board.createdAt).toLocaleDateString()}
-                    </Typography>
+                    </Typography> */}
                   </Paper>
                 </Grid>
               ))}
