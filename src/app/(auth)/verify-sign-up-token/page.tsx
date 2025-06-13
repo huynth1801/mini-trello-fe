@@ -7,15 +7,16 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import axiosClient from "@/lib/axios";
 import ResourceURL from "@/constants/ResourceURL";
-import { ISendCodeResponse, ISignInResponse } from "@/types/ClientUI";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CircularProgress } from "@mui/material";
-import AppConstants from "@/constants/AppConstants";
 
 export default function VerifySignUpTokenPage() {
   const [verificationCode, setVerificationCode] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -71,6 +72,16 @@ export default function VerifySignUpTokenPage() {
         </Button>
         {error && <div style={{ color: "red" }}>{error}</div>}
       </form>
+      <Snackbar
+        open={open}
+        autoHideDuration={2000}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert severity="success" sx={{ width: "100%" }}>
+          Sign up successfully ! Redirect to log in page ...
+        </Alert>
+      </Snackbar>
     </Paper>
   );
 }

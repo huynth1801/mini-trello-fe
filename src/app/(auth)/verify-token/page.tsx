@@ -11,6 +11,7 @@ import { ISendCodeResponse, ISignInResponse } from "@/types/ClientUI";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CircularProgress } from "@mui/material";
 import AppConstants from "@/constants/AppConstants";
+import setCookie from "@/utils/cookie";
 
 export default function VerifyTokenPage() {
   const [verificationCode, setVerificationCode] = useState<string>("");
@@ -29,6 +30,7 @@ export default function VerifyTokenPage() {
           { email, verificationCode }
         );
         if (response.status === 200) {
+          setCookie(AppConstants.ACCESS_TOKEN, response.data.accessToken);
           localStorage.setItem(
             AppConstants.ACCESS_TOKEN,
             response.data.accessToken
@@ -54,7 +56,7 @@ export default function VerifyTokenPage() {
           required
           margin="normal"
           value={verificationCode}
-          onChange={(e) => setVerificationCode(e.target.value)}
+          onChange={(e) => setVerificationCode(e.target.value.trim())}
         />
         <Button
           type="submit"

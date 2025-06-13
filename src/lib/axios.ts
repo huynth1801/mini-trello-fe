@@ -23,6 +23,7 @@ axiosClient.interceptors.request.use(
 
         if(!isAuthEndpoint) {
             const token = getAccessToken()
+            console.log("token", token)
             if(token && config.headers) {
                 config.headers.Authorization = `Bearer ${token}`
             }
