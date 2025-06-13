@@ -1,6 +1,7 @@
 import AppConstants from "./AppConstants";
 
 const API_PATH = AppConstants.API_PATH
+const BOARD_PATH = AppConstants.BOARD_PATH
 
 class ResourceURL {
     static SEND_TOKEN_SIGN_UP = API_PATH + "/auth/send-verification"
